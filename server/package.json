@@ -1,0 +1,16 @@
+{
+  "name": "urbannest-houses",
+  "version": "1.0.0",
+  "description": "UrbanNest is a realstate listing website deployes as a microservice",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "nodemon": "^2.0.22"
+  }
+}
