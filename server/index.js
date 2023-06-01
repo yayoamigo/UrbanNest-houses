@@ -8,8 +8,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const amqp = require('amqplib');
 const consumeMessage = require('./routes/consumer') // Import the consumer function
-const House = require('./models/house');
-const ProductUser = require('./models/ProductUser');
 const HousesRoute = require('./routes/houses');
 
 dotenv.config();
