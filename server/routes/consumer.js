@@ -1,31 +1,41 @@
-const amqp = require('amqplib');
+// consumer.js
 
-const url = 'amqps://ruvcjaov:snVYClXt5TVWRCIp72esmseCiha1RdCi@jackal.rmq.cloudamqp.com/ruvcjaov';
+const House = require('../models/Houses');
 
-amqp.connect(url, (error, connection) => {
-  if (error) {
-    throw error;
-  }
+async function consumeMessage(message) {
+  console.log('Received in admin');
+  console.log(message.content.toString());
 
-  connection.createChannel((error, channel) => {
-    if (error) {
-      throw error;
+  // Parse the message content as JSON
+  const data = JSON.parse(message.content.toString());
+
+  // Perform actions based on the content type
+  if (message.properties.contentType === 'house_created') {
+    const { id, title, image } = data;
+    const house = new House({ id, title, image });
+    try {
+      await house.save();
+      console.log('house Created');
+    } catch (error) {
+      console.error('Error creating house:', error);
     }
+  } else if (message.properties.contentType === 'house_updated') {
+    const { id, title, image } = data;
+    try {
+      await House.findOneAndUpdate({ id }, { title, image });
+      console.log('house Updated');
+    } catch (error) {
+      console.error('Error updating house:', error);
+    }
+  } else if (message.properties.contentType === 'house_deleted') {
+    const { id } = data;
+    try {
+      await House.findOneAndRemove({ id });
+      console.log('house Deleted');
+    } catch (error) {
+      console.error('Error deleting house:', error);
+    }
+  }
+}
 
-    const queue = 'admin';
-
-    channel.assertQueue(queue, { durable: false });
-
-    console.log('Waiting for messages...');
-
-    channel.consume(queue, (message) => {
-      console.log('Received in admin');
-      console.log(message.content.toString());
-    }, { noAck: true });
-
-    process.on('SIGINT', () => {
-      channel.close();
-      connection.close();
-    });
-  });
-});
+module.exports = consumeMessage;
